@@ -1,4 +1,5 @@
 import { AboutSection } from '@/components/about-section'
+import { ConnectSection } from '@/components/connect-section'
 import { ContactSection } from '@/components/contact-section'
 import { ServersSection } from '@/components/servers-section'
 import { ServicesSection } from '@/components/services-section'
@@ -14,6 +15,7 @@ export default function Page() {
         <ServicesSection />
         <ServersSection />
         <ContactSection />
+        <ConnectSection />
       </main>
       <SiteFooter />
     </>
