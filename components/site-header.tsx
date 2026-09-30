@@ -1,6 +1,7 @@
 const navLinks = [
   { href: '#about', label: 'About' },
   { href: '#services', label: 'Services' },
+  { href: '#discord', label: 'Discord' },
   { href: '#contact', label: 'Contact' },
 ]
 
