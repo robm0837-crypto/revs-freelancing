@@ -11,11 +11,11 @@ export default function Page() {
     <>
       <SiteHeader />
       <main>
+        <ConnectSection />
         <AboutSection />
         <ServicesSection />
         <ServersSection />
         <ContactSection />
-        <ConnectSection />
       </main>
       <SiteFooter />
     </>
