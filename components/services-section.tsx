@@ -1,4 +1,10 @@
-import { BookOpen, Bot, Handshake, PenLine } from 'lucide-react'
+import {
+  BookOpen,
+  Bot,
+  Handshake,
+  MessagesSquare,
+  PenLine,
+} from 'lucide-react'
 
 const services = [
   {
@@ -25,6 +31,12 @@ const services = [
     description:
       'Practical advice grounded in decades of public service, from procedures and training to communication and planning.',
   },
+  {
+    icon: MessagesSquare,
+    title: 'Discord Server Building',
+    description:
+      'Custom Discord servers set up for communities, religious organizations, and HOAs.',
+  },
 ]
 
 export function ServicesSection() {
@@ -49,7 +61,7 @@ export function ServicesSection() {
           {services.map((service) => (
             <li
               key={service.title}
-              className="flex flex-col rounded-lg border bg-card p-6 shadow-sm sm:p-7"
+              className="flex flex-col rounded-lg border bg-card p-6 shadow-sm sm:p-7 sm:odd:last:col-span-2"
             >
               <span className="flex size-11 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <service.icon className="size-5" aria-hidden="true" />
