@@ -55,3 +55,9 @@ Next time, sign in at `/login`.
 Supabase: **Authentication -> Sign In / Providers -> Email**. Turn off
 "Allow new users to sign up". Then only invited people can have accounts.
 (Even without this, only people marked `admin` in the profiles table can see `/admin`.)
+
+## Contact form inbox
+
+Run `supabase/contact-messages.sql` once (Supabase: **SQL Editor -> New query ->
+paste -> Run**). After that, every contact-form message is emailed through
+Web3Forms **and** saved to the inbox shown on `/admin`.
