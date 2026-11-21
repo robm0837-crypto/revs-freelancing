@@ -4,10 +4,12 @@ export function AuthCard({
   title,
   description,
   children,
+  wide = false,
 }: {
   title: string
   description?: string
   children: React.ReactNode
+  wide?: boolean
 }) {
   return (
     <main className="flex min-h-screen flex-col bg-muted/40">
@@ -18,7 +20,11 @@ export function AuthCard({
           </Link>
         </div>
       </header>
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 py-12">
+      <div
+        className={`mx-auto flex w-full flex-1 flex-col px-5 py-12 ${
+          wide ? 'max-w-3xl' : 'max-w-md justify-center'
+        }`}
+      >
         <div className="rounded-xl border bg-background p-6 shadow-sm sm:p-8">
           <h1 className="font-serif text-2xl font-semibold">{title}</h1>
           {description ? (

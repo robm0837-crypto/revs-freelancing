@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { CheckCircle2 } from 'lucide-react'
 import { validateContact, type ContactState } from '@/lib/contact'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,6 +12,41 @@ import { Textarea } from '@/components/ui/textarea'
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
 // Web3Forms access keys are designed to be public; submissions must come from the browser on the free plan.
 const WEB3FORMS_ACCESS_KEY = '2de5c55e-b324-45cf-b4a1-596ecbb3bf90'
+
+type ContactValues = { name: string; email: string; message: string }
+
+async function sendEmail(values: ContactValues, botcheck: boolean) {
+  try {
+    const response = await fetch(WEB3FORMS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_ACCESS_KEY,
+        subject: `New message from ${values.name} via Revs Freelancing`,
+        from_name: 'Revs Freelancing Website',
+        replyto: values.email,
+        botcheck,
+        ...values,
+      }),
+    })
+    const result = (await response.json().catch(() => null)) as { success?: boolean } | null
+    return response.ok && Boolean(result?.success)
+  } catch {
+    return false
+  }
+}
+
+// Saves a copy of the message so it shows up in the /admin inbox.
+async function saveCopy(values: ContactValues) {
+  try {
+    const supabase = createClient()
+    if (!supabase) return false
+    const { error } = await supabase.from('contact_messages').insert(values)
+    return !error
+  } catch {
+    return false
+  }
+}
 
 export function ContactSection() {
   const [state, setState] = useState<ContactState>({ status: 'idle' })
@@ -33,21 +69,16 @@ export function ContactSection() {
 
     setPending(true)
     try {
-      const response = await fetch(WEB3FORMS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY,
-          subject: `New message from ${values.name} via Revs Freelancing`,
-          from_name: 'Revs Freelancing Website',
-          replyto: values.email,
-          botcheck: formData.get('botcheck') === 'on',
-          ...values,
-        }),
-      })
-      const result = (await response.json().catch(() => null)) as { success?: boolean } | null
+      const botcheck = formData.get('botcheck') === 'on'
 
-      if (!response.ok || !result?.success) {
+      // Send the email (Web3Forms) and keep a copy in the admin inbox (Supabase)
+      // at the same time. Either one working counts as sent.
+      const [emailSent, copySaved] = await Promise.all([
+        sendEmail(values, botcheck),
+        botcheck ? Promise.resolve(false) : saveCopy(values),
+      ])
+
+      if (!emailSent && !copySaved) {
         setState({
           status: 'error',
           message: 'Sorry, your message could not be sent. Please try again in a moment.',

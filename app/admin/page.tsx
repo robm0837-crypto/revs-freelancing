@@ -48,14 +48,55 @@ export default async function AdminPage() {
     )
   }
 
+  // Only admins can read messages (enforced in the database, not just here).
+  const { data: messages, error } = await supabase
+    .from('contact_messages')
+    .select('id, created_at, name, email, message')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
   return (
     <AuthCard
-      title="Admin"
-      description={`Signed in as ${user.email}. You are an administrator.`}
+      wide
+      title="Inbox"
+      description={`Signed in as ${user.email}. Messages from your contact form, newest first.`}
     >
-      <p className="mb-6 text-sm text-muted-foreground">
-        This is the starting point for the admin area. CRM tools can be added here.
-      </p>
+      {error ? (
+        <p role="alert" className="mb-6 text-sm text-destructive">
+          Could not load messages. The inbox database script may not have been run yet.
+        </p>
+      ) : !messages || messages.length === 0 ? (
+        <p className="mb-6 text-sm text-muted-foreground">No messages yet.</p>
+      ) : (
+        <ul className="mb-8 space-y-4">
+          {messages.map((m) => (
+            <li key={m.id} className="rounded-lg border bg-card p-4 sm:p-5">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <p className="font-medium">{m.name}</p>
+                <time
+                  dateTime={m.created_at}
+                  className="text-xs text-muted-foreground"
+                >
+                  {new Date(m.created_at).toLocaleString('en-US', {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                    timeZone: 'America/Chicago',
+                  })}
+                </time>
+              </div>
+              <a
+                href={`mailto:${encodeURIComponent(m.email).replace('%40', '@')}`}
+                className="text-sm text-primary underline-offset-4 hover:underline"
+              >
+                {m.email}
+              </a>
+              <p className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">
+                {m.message}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
       <SignOutButton />
     </AuthCard>
   )
